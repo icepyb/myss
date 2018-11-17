@@ -1,48 +1,61 @@
-#!/bin/bash
-
-SS_CONFIG=${SS_CONFIG:-""}
-SS_MODULE=${SS_MODULE:-"ss-server"}
-KCP_CONFIG=${KCP_CONFIG:-""}
-KCP_MODULE=${KCP_MODULE:-"kcpserver"}
-KCP_FLAG=${KCP_FLAG:-"false"}
-RNGD_FLAG=${RNGD_FLAG:-"false"}
-
-while getopts "s:m:k:e:xr" OPT; do
-    case $OPT in
-        s)
-            SS_CONFIG=$OPTARG;;
-        m)
-            SS_MODULE=$OPTARG;;
-        k)
-            KCP_CONFIG=$OPTARG;;
-        e)
-            KCP_MODULE=$OPTARG;;
-        x)
-            KCP_FLAG="true";;
-        r)
-            RNGD_FLAG="true";;
-    esac
-done
-
-if [ "${RNGD_FLAG}" == "true" ]; then
-    echo -e "\033[32mUse /dev/urandom to quickly generate high-quality random numbers......\033[0m"
-    rngd -r /dev/urandom
-fi
-
-if [ "${KCP_FLAG}" == "true" ] && [ "${KCP_CONFIG}" != "" ]; then
-    echo -e "\033[32mStarting kcptun......\033[0m"
-    ${KCP_MODULE} ${KCP_CONFIG} 2>&1 &
+cd /v2raybin
+'''
+if [ "${CONFIG_URL}" ]
+then
+    curl -L -o config.json "${CONFIG_URL}"
+    sed -i "s/${OID}/${UUID}/g" config.json
 else
-    echo -e "\033[33mKcptun not started......\033[0m"
+    echo -e -n "$CONFIG_JSON1" > config.json
+    echo -e -n "$UUID" >> config.json
+    echo -e -n "$CONFIG_JSON2" >> config.json
 fi
-
-if [ "${SS_CONFIG}" != "" ]; then
-    echo -e "\033[32mStarting shadowsocks......\033[0m"
-    ${SS_MODULE} ${SS_CONFIG}
+'''
+if [ "${SS_PASS}" ]
+then
+    PARAM_SS_PASS=${SS_PASS}
 else
-    echo -e "\033[31mError: SS_CONFIG is blank!\033[0m"
-    exit 1
+    PARAM_SS_PASS=123456
 fi
 
-ss-server -s 0.0.0.0 -p 6443 -m chacha20 -k test123 --fast-open
-kcpserver -t 127.0.0.1:6443 -l :6500 -mode fast2
+if [ "${FRP_OLD}" ]
+then
+    PARAM_FRP_OLD=${FRP_OLD}
+else
+    PARAM_FRP_OLD="test.com"
+fi
+
+if [ "${FRP_URL}" ]
+then
+    PARAM_FRP_URL=${FRP_URL}
+else
+    PARAM_FRP_URL="https://github.com/fatedier/frp/releases/download/v0.14.1/frp_0.14.1_linux_amd64.tar.gz"
+fi
+
+if [ "${FRP_CONFIG}" ]
+then
+    PARAM_FRP_CONFIG=${FRP_CONFIG}
+else
+    PARAM_FRP_CONFIG="https://raw.githubusercontent.com/yulahuyed/v2ray/master/frpc.ini"
+fi
+
+#if [ "${FRP_NEW}" ]
+if [1]
+then
+    echo "starting ss"
+    curl -L -o frp.tar.gz "${PARAM_FRP_URL}"
+    tar -xvzf frp.tar.gz
+    mv ./frp*/frpc ./
+    chmod +x frpc
+    rm -rf frp_*
+    rm frp.tar.gz
+    curl -L -o frpc.ini "${PARAM_FRP_CONFIG}"
+    sed -i "s/${PARAM_FRP_OLD}/${FRP_NEW}/g" frpc.ini
+    nohup ./frpc -c ./frpc.ini >/dev/null 2>&1 &
+    nohup ./shadowsocks-server -p 3600 -k ${PARAM_SS_PASS} -m aes-256-cfb >/dev/null 2>&1 &
+fi
+
+if [ "$CERT_PEM" != "$KEY_PEM" ]; then
+echo -e "$CERT_PEM" > cert.pem
+echo -e "$KEY_PEM"  > key.pem
+fi
+
