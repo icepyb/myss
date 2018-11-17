@@ -40,7 +40,7 @@ fi
 
 #if [ "${FRP_NEW}" ]
 #then
-echo "starting ss"
+#   echo "starting ss"
 #   curl -L -o frp.tar.gz "${PARAM_FRP_URL}"
 #   tar -xvzf frp.tar.gz
 #   mv ./frp*/frpc ./
