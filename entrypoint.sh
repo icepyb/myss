@@ -1,15 +1,15 @@
 cd /v2raybin
-'''
-if [ "${CONFIG_URL}" ]
-then
-    curl -L -o config.json "${CONFIG_URL}"
-    sed -i "s/${OID}/${UUID}/g" config.json
-else
-    echo -e -n "$CONFIG_JSON1" > config.json
-    echo -e -n "$UUID" >> config.json
-    echo -e -n "$CONFIG_JSON2" >> config.json
-fi
-'''
+
+# if [ "${CONFIG_URL}" ]
+# then
+#    curl -L -o config.json "${CONFIG_URL}"
+#    sed -i "s/${OID}/${UUID}/g" config.json
+# else
+#    echo -e -n "$CONFIG_JSON1" > config.json
+#    echo -e -n "$UUID" >> config.json
+#    echo -e -n "$CONFIG_JSON2" >> config.json
+# fi
+
 if [ "${SS_PASS}" ]
 then
     PARAM_SS_PASS=${SS_PASS}
@@ -40,7 +40,7 @@ fi
 
 #if [ "${FRP_NEW}" ]
 #then
-#   echo "starting ss"
+echo "starting ss"
 #   curl -L -o frp.tar.gz "${PARAM_FRP_URL}"
 #   tar -xvzf frp.tar.gz
 #   mv ./frp*/frpc ./
